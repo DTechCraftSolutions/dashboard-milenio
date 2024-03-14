@@ -96,7 +96,7 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
             >
               <Avatar
                 style={{ backgroundColor: "#232A60" }}
-                size={50}
+                size={47}
                 icon={<UserOutlined />}
               />
             </Popover>
