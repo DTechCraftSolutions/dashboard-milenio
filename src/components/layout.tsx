@@ -3,25 +3,12 @@ import React, { useState } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
-  AppstoreOutlined,
-  ProductOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import {
-  Layout,
-  Menu,
-  Button,
-  theme,
-  Avatar,
-  Popover,
-  Divider,
-  MenuProps,
-} from "antd";
-import Link from "next/link";
-
+import { Layout, Menu, Button, theme, Avatar, Popover, MenuProps } from "antd";
+import { ItensComponet } from "./itens-side-bar";
 const { Header, Sider, Content } = Layout;
-
+import Image from "next/image";
 type MenuItem = Required<MenuProps>["items"][number];
 function getItem(
   label: React.ReactNode,
@@ -41,7 +28,7 @@ function getItem(
 
 export function LayoutComponent({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
-
+  const { items } = ItensComponet(collapsed);
   const content = (
     <div className="flex flex-col justify-center items-center">
       <a
@@ -53,30 +40,6 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
     </div>
   );
 
-  const items: MenuItem[] = [
-    getItem(
-      <Link href={"/"}>Painel de Controle</Link>,
-      "1",
-      <div>
-        <AppstoreOutlined />
-      </div>
-    ),
-    getItem(
-      <Link href={"/produtos"}>Produtos</Link>,
-      "2",
-      <div>
-        <ProductOutlined />
-      </div>
-    ),
-    getItem(
-      <Link href={"/upload-produtos"}>Upload de Produtos</Link>,
-      "3",
-      <div>
-        <UploadOutlined />
-      </div>
-    ),
-  ];
-
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -85,19 +48,24 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
     <Layout>
       <Sider
         width={260}
-        className="h-screen"
+        color="#232A60"
+        style={{
+          background: "#232A60",
+        }}
+        className="h-screen bg-[#232A60]"
         trigger={null}
         collapsible
         collapsed={collapsed}
       >
         <div
           className="flex justify-center items-center text-red-600 text-xl
-           py-5 pb-14"
+           py-5 pb-12"
         >
-          M
+          <Image src="/assets/logo.png" width={40} height={100} alt="logo" />
         </div>
         <Menu
-          theme="dark"
+          className="bg-[#232A60] text-[16px]"
+          theme="light"
           mode="inline"
           defaultSelectedKeys={["1"]}
           items={items}
@@ -110,6 +78,7 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
         >
           <Button
             type="link"
+            className="text-red-500"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
             style={{
@@ -126,7 +95,7 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
               trigger="click"
             >
               <Avatar
-                style={{ backgroundColor: "#072540" }}
+                style={{ backgroundColor: "#232A60" }}
                 size={50}
                 icon={<UserOutlined />}
               />
