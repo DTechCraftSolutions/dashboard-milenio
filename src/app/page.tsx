@@ -1,4 +1,4 @@
-import HomePage from "@/app/(painel-de-controle)/page";
+import HomePage from "@/app/painel-de-controle/page";
 
 export default function Home() {
   return (
