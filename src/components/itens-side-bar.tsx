@@ -43,10 +43,14 @@ function getItem(
 export function ItensComponet(collapsed: any) {
   const items: MenuItem[] = [
     getItem(
-      <Link href={"/"} className="text-white">
-        Painel de Controle
+      <Link href={"/"}>
+        {collapsed ? (
+          "Painel de Controle"
+        ) : (
+          <div className="text-blue-400">Painel de Controle</div>
+        )}
       </Link>,
-      "1",
+      "painel-de-controle",
       <div>
         <AppstoreOutlined
           style={{ fontSize: "24px" }}
@@ -56,7 +60,7 @@ export function ItensComponet(collapsed: any) {
     ),
     getItem(
       <div className="text-white">Produtos</div>,
-      "2",
+      "Produtos",
       <div>
         <ProductOutlined
           style={{ fontSize: "24px" }}
@@ -72,7 +76,7 @@ export function ItensComponet(collapsed: any) {
               <div className="text-blue-400">Produtos</div>
             )}
           </Link>,
-          "2.1",
+          "gerenciar-produtos",
           <div>
             {!collapsed && (
               <PieChartOutlined
@@ -90,7 +94,7 @@ export function ItensComponet(collapsed: any) {
               <div className="text-blue-400">Categorias</div>
             )}
           </Link>,
-          "2.2",
+          "categorias-produtos",
           <div>
             {!collapsed && (
               <FormOutlined

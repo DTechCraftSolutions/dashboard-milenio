@@ -6,7 +6,7 @@ import { LayoutComponent } from "@/components/layout";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Dashboard 3° Milenio",
+  title: "Dashboard 3° Milenio | Gerenciamento dos Produtos",
   description: "Uma história de grandes resultados!",
 };
 

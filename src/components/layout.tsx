@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -30,6 +31,8 @@ function getItem(
 export function LayoutComponent({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const { items } = ItensComponet(collapsed);
+  const pathname = usePathname();
+  const routeName = pathname.substring(1);
 
   const router = useRouter();
 
@@ -76,7 +79,7 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
           className="bg-[#232A60] text-[16px]"
           theme="light"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          selectedKeys={[routeName]}
           items={items}
         />
       </Sider>
