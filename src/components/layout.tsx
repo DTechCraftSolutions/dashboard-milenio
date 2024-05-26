@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Button, theme, Avatar, Popover, MenuProps } from "antd";
 import { ItensComponet } from "./itens-side-bar";
+import { useRouter } from "next/navigation";
 const { Header, Sider, Content } = Layout;
 import Image from "next/image";
 type MenuItem = Required<MenuProps>["items"][number];
@@ -29,9 +30,17 @@ function getItem(
 export function LayoutComponent({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const { items } = ItensComponet(collapsed);
+
+  const router = useRouter();
+
+  function handleLogout() {
+    router.push("/login");
+  }
+
   const content = (
     <div className="flex flex-col justify-center items-center">
       <a
+        onClick={handleLogout}
         className="flex justify-center hover:bg-gray-100 w-full items-center
         py-1 rounded-md cursor-pointer transition-all duration-300"
       >

@@ -1,9 +1,9 @@
-import { TabsHome } from "@/components/tabs-home";
+import HomePage from "./(painel-de-controle)/page";
 
 export default function Home() {
   return (
     <div>
-      <TabsHome />
+      <HomePage />
     </div>
   );
 }
