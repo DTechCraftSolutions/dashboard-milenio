@@ -1,12 +1,10 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { FormEvent } from "react";
 
 export function LoginComponent() {
-  const router = useRouter();
   function handleLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    router.push("/");
+    window.location.href = "/";
   }
   return (
     <div className="flex flex-col justify-center items-center w-full h-full">
