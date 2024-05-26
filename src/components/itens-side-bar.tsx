@@ -69,14 +69,14 @@ export function ItensComponet(collapsed: any) {
       </div>,
       [
         getItem(
-          <Link href={"/gerenciar-produtos"}>
+          <Link href={"/painel-de-controle/gerenciar-produtos"}>
             {collapsed ? (
               "Gerenciar Produtos"
             ) : (
               <div className="text-blue-400">Produtos</div>
             )}
           </Link>,
-          "gerenciar-produtos",
+          "painel-de-controle/gerenciar-produtos",
           <div>
             {!collapsed && (
               <PieChartOutlined
@@ -87,14 +87,17 @@ export function ItensComponet(collapsed: any) {
           </div>
         ),
         getItem(
-          <Link href={"/categorias-produtos"} className="text-white">
+          <Link
+            href={"/painel-de-controle/categorias-produtos"}
+            className="text-white"
+          >
             {collapsed ? (
               "Categorias "
             ) : (
               <div className="text-blue-400">Categorias</div>
             )}
           </Link>,
-          "categorias-produtos",
+          "painel-de-controle/categorias-produtos",
           <div>
             {!collapsed && (
               <FormOutlined
