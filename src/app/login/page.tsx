@@ -9,6 +9,7 @@ export default function Login() {
           <Image src="/assets/logo.png" alt="logo" width={500} height={500} />
         </div>
       </div>
+
       <div className="w-full md:w-1/2 h-screen">
         <LoginComponent />
       </div>

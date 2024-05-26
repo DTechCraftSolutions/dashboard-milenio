@@ -47,5 +47,7 @@ const data: DataType[] = [
 ];
 
 export function TableProductsComponent() {
-  return <Table columns={columns} dataSource={data} />;
+  return (
+    <Table className="border rounded-md" columns={columns} dataSource={data} />
+  );
 }
