@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background: #eaf2fe;
-}
-
 /* Estilos para a barra de rolagem */
 ::-webkit-scrollbar {
   width: 9px; /* Largura da barra de rolagem */
