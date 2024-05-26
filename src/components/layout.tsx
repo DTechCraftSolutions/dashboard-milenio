@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UserOutlined,
+  LikeOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button, theme, Avatar, Popover, MenuProps } from "antd";
 import { ItensComponet } from "./itens-side-bar";
@@ -44,7 +44,7 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col justify-center items-center">
       <a
         onClick={handleLogout}
-        className="flex justify-center hover:bg-gray-100 w-full items-center
+        className="flex justify-center hover:bg-gray-200 w-full items-center
         py-1 rounded-md cursor-pointer transition-all duration-300"
       >
         Sair
@@ -76,7 +76,7 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
           <Image src="/assets/logo.png" width={40} height={100} alt="logo" />
         </div>
         <Menu
-          className="bg-[#232A60] text-[16px]"
+          className="bg-[#232A60]"
           theme="light"
           mode="inline"
           selectedKeys={[routeName]}
@@ -103,22 +103,35 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
           <div className="pr-5 cursor-pointer">
             <Popover
               content={content}
-              title="Bem vindo ao dashboard"
+              title={
+                <div className="text-center flex justify-center items-center gap-2">
+                  Bem vindo! <LikeOutlined className="text-blue-500" />
+                </div>
+              }
               trigger="click"
             >
               <Avatar
                 style={{ backgroundColor: "#232A60" }}
                 size={47}
-                icon={<UserOutlined />}
+                icon={
+                  <div>
+                    <Image
+                      src="/assets/logo.png"
+                      alt="avatar"
+                      width={30}
+                      height={20}
+                    />
+                  </div>
+                }
               />
             </Popover>
           </div>
         </Header>
         <Content
+          className="overflow-y-scroll max-h-[41.5rem]"
           style={{
             margin: "24px 16px",
             padding: 24,
-            minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}

@@ -319,33 +319,6 @@ export function ItensComponet(collapsed: any) {
         ),
       ]
     ),
-    getItem(
-      <div className="text-white">Clientes</div>,
-      "8",
-      <div>
-        <UserOutlined style={{ fontSize: "24px" }} className="text-blue-300" />
-      </div>,
-      [
-        getItem(
-          <Link href={"/lista-clientes"} className="text-white">
-            {collapsed ? (
-              "   Lista de Clientes"
-            ) : (
-              <div className="text-blue-400">Lista de Clientes</div>
-            )}{" "}
-          </Link>,
-          "8.1",
-          <div>
-            {!collapsed && (
-              <SolutionOutlined
-                style={{ fontSize: "24px" }}
-                className="text-blue-300"
-              />
-            )}
-          </div>
-        ),
-      ]
-    ),
   ];
 
   return {
