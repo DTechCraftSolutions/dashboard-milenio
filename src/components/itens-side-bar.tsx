@@ -4,23 +4,20 @@ import Link from "next/link";
 import {
   AppstoreOutlined,
   ProductOutlined,
-  UserOutlined,
   PieChartOutlined,
   FormOutlined,
-  HistoryOutlined,
   FireOutlined,
   NotificationOutlined,
   LineChartOutlined,
   FileDoneOutlined,
   FileTextOutlined,
-  FileSearchOutlined,
   FileImageOutlined,
   FundOutlined,
   PictureOutlined,
   QrcodeOutlined,
   ShoppingOutlined,
   TagsOutlined,
-  SolutionOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -69,11 +66,30 @@ export function ItensComponet(collapsed: any) {
       </div>,
       [
         getItem(
+          <Link href={"/painel-de-controle/criar-produtos"}>
+            {collapsed ? (
+              "Criar Produtos"
+            ) : (
+              <div className="text-blue-400">Criar Produtos</div>
+            )}
+          </Link>,
+          "painel-de-controle/criar-produtos",
+          <div>
+            {!collapsed && (
+              <ShopOutlined
+                style={{ fontSize: "24px" }}
+                className="text-blue-300"
+              />
+            )}
+          </div>
+        ),
+
+        getItem(
           <Link href={"/painel-de-controle/gerenciar-produtos"}>
             {collapsed ? (
               "Gerenciar Produtos"
             ) : (
-              <div className="text-blue-400">Produtos</div>
+              <div className="text-blue-400">Meus Produtos</div>
             )}
           </Link>,
           "painel-de-controle/gerenciar-produtos",

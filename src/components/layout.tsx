@@ -85,7 +85,7 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
       </Sider>
       <Layout>
         <Header
-          className="flex justify-between"
+          className="flex justify-between shadow-sm "
           style={{ padding: 0, background: colorBgContainer }}
         >
           <Button
@@ -111,8 +111,9 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
               trigger="click"
             >
               <Avatar
+                className="shadow-md"
                 style={{ backgroundColor: "#232A60" }}
-                size={47}
+                size={42}
                 icon={
                   <div>
                     <Image
@@ -128,7 +129,8 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
           </div>
         </Header>
         <Content
-          className="overflow-y-scroll max-h-[41.5rem]"
+          className="overflow-y-scroll max-h-[41.5rem] border
+          border-zinc-100 rounded-md shadow-md"
           style={{
             margin: "24px 16px",
             padding: 24,
