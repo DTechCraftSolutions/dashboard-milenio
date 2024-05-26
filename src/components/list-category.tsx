@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Avatar, List, message } from "antd";
 import VirtualList from "rc-virtual-list";
-
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 interface CategoryItem {
   name: string;
 }
@@ -29,19 +29,13 @@ export function ListCategoryComponent() {
         {(item: CategoryItem) => (
           <List.Item key={item.name}>
             <List.Item.Meta title={<a>Categoria</a>} description={item.name} />
-            <div className="flex gap-2">
-              <button
-                className="bg-blue-500 hover:bg-blue-500/70 text-white 
-              font-bold py-2 px-4 rounded transition-all duration-500"
-              >
-                Editar
-              </button>
-              <button
-                className="bg-[#E72F2B] hover:bg-[#E72F2B]/70
-               text-white font-bold py-2 px-4 rounded transition-all duration-500 "
-              >
-                Excluir
-              </button>
+            <div className="flex gap-5">
+              <div className="cursor-pointer">
+                <EditOutlined className="text-blue-700 text-[16px]	" />
+              </div>
+              <div className="cursor-pointer">
+                <DeleteOutlined className="text-red-500 text-[16px]	" />
+              </div>
             </div>
           </List.Item>
         )}
