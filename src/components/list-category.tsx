@@ -18,6 +18,8 @@ const columns: TableProps<DataType>["columns"] = [
   },
   {
     title: "Ações",
+    width: 1,
+    fixed: "right",
     key: "actions",
     render: () => (
       <div className="flex gap-5">

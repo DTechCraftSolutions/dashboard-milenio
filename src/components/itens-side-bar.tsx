@@ -18,6 +18,7 @@ import {
   ShoppingOutlined,
   TagsOutlined,
   ShopOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -77,6 +78,24 @@ export function ItensComponet(collapsed: any) {
           <div>
             {!collapsed && (
               <ShopOutlined
+                style={{ fontSize: "24px" }}
+                className="text-blue-300"
+              />
+            )}
+          </div>
+        ),
+        getItem(
+          <Link href={"/painel-de-controle/estoque"}>
+            {collapsed ? (
+              "Criar Produtos"
+            ) : (
+              <div className="text-blue-400">Criar Estoque</div>
+            )}
+          </Link>,
+          "painel-de-controle/estoque",
+          <div>
+            {!collapsed && (
+              <ShoppingCartOutlined
                 style={{ fontSize: "24px" }}
                 className="text-blue-300"
               />
