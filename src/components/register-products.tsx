@@ -1,5 +1,5 @@
 "use client";
-import { Button, Input, Upload } from "antd";
+import { Button, Input, Select, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 
@@ -15,32 +15,20 @@ export function RegisterProductsComponent() {
     <div className="flex flex-col w-full">
       <form className="border w-11/12 flex flex-col gap-10 p-5 h-full rounded-lg">
         <div className="flex gap-5">
-          <Input
-            className="p-2 bg-zinc-100"
-            placeholder="Nome do produto"
-            type="text"
-          />
-          <Input
-            className="p-2 bg-zinc-100"
-            placeholder="Descrição"
-            type="text"
-          />
+          <Input className="p-2" placeholder="Nome do produto" type="text" />
+          <Input className="p-2 " placeholder="Descrição" type="text" />
         </div>
 
         <div className="flex gap-5">
-          <Input
-            className="p-2 bg-zinc-100 "
-            placeholder="Preço"
-            type="number"
-          />
-          <Input
-            className="p-2 bg-zinc-100 "
-            placeholder="Categoria"
-            type="text"
+          <Input className="p-2" placeholder="Preço" type="text" />
+          <Select
+            size="large"
+            className="w-full"
+            placeholder="Selecione a categoria"
           />
         </div>
 
-        <div className="flex flex-col gap-2 border p-2">
+        <div className="flex flex-col gap-2 border p-5 rounded-md bg-zinc-100">
           <label> Adicione uma imagem: </label>
           <Upload {...props}>
             <Button icon={<UploadOutlined />}>Upload</Button>

@@ -15,10 +15,7 @@ export function RegisterCategoryComponent() {
         <label className="font-semibold">Nome da categoria:</label>
 
         <Space.Compact style={{ width: "100%" }}>
-          <Input
-            className="w-1/4 border bg-zinc-100"
-            placeholder="Nome da categoria"
-          />
+          <Input className="w-1/4 border " placeholder="Nome da categoria" />
           <Button className="font-semibold h-10 bg-[#E72F2B] text-white">
             Cadastrar
           </Button>

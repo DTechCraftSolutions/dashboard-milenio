@@ -14,19 +14,15 @@ export function CreateBannerComponent() {
     <div className="flex flex-col w-full">
       <form className="border w-11/12 flex flex-col gap-10 p-5 h-full rounded-lg">
         <div className="flex gap-5">
-          <Input
-            className="p-2 bg-zinc-100"
-            placeholder="Nome do banner"
-            type="text"
-          />
+          <Input className="p-2" placeholder="Nome do banner" type="text" />
 
           <Input
-            className="p-2 bg-zinc-100"
+            className="p-2 "
             placeholder="dscrição do banner"
             type="text"
           />
         </div>
-        <div className="flex flex-col gap-2 border p-2">
+        <div className="flex flex-col gap-2 border p-5 rounded-md bg-zinc-100">
           <label> Adicione uma imagem: </label>
           <Upload {...props}>
             <Button icon={<UploadOutlined />}>Upload</Button>
