@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 export default function Produtos() {
   const [categories, setCategories] = useState<any>([]);
   const [filteredProducts, setFilteredProducts] = useState<any>([]);
+  const [products, setProducts] = useState<any>([]);
   async function getAllCategories() {
     try {
       const response = await api.get("/categories/list");
@@ -16,8 +17,18 @@ export default function Produtos() {
     }
   }
 
+  async function getAllProducts() {
+    try {
+      const response = await api.get("/products/list");
+      setProducts(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   useEffect(() => {
     getAllCategories();
+    getAllProducts();
   }, []);
   return (
     <div className="flex flex-col">
@@ -29,7 +40,7 @@ export default function Produtos() {
         />
       </div>
       <div className="pt-10">
-        <TableProductsComponent />
+        <TableProductsComponent products={products} filter={filteredProducts} />
       </div>
     </div>
   );

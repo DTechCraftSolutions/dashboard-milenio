@@ -1,9 +1,10 @@
 "use client";
 import { api } from "@/axios/config";
-import { Input, Select } from "antd";
+import { Button, Input, Select } from "antd";
 import { FormEvent, useEffect, useState } from "react";
 
 export function RegisterVariantsComponent() {
+  const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<any>([]);
   const [data, setData] = useState<any>({
     name: "",
@@ -13,7 +14,6 @@ export function RegisterVariantsComponent() {
   async function getAllProducts() {
     try {
       const response = await api.get("/products/list");
-      console.log("response:", response.data);
       setProducts(response.data);
     } catch (error) {
       console.error(error);
@@ -22,6 +22,7 @@ export function RegisterVariantsComponent() {
 
   async function createVariants(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setLoading(true);
     try {
       await api.post("/variants/register", {
         name: data.name,
@@ -30,6 +31,13 @@ export function RegisterVariantsComponent() {
       });
     } catch (error) {
       console.error(error);
+    } finally {
+      setData({
+        name: "",
+        amount: "",
+        productId: "",
+      });
+      setLoading(false);
     }
   }
 
@@ -73,12 +81,15 @@ export function RegisterVariantsComponent() {
         </div>
 
         <div className="flex justify-end items-end w-full pt-10">
-          <button
+          <Button
+            disabled={!data.name || !data.amount || !data.productId}
+            loading={loading}
+            htmlType="submit"
             className="bg-[#E72F2B] text-white font-bold py-2 px-4 rounded
-        hover:bg-[#E72F2B]/70 transition-all duration-500 w-1/6 "
+        hover:bg-[#E72F2B]/70 transition-all duration-500 w-1/6 h-10 "
           >
             Cadastrar
-          </button>
+          </Button>
         </div>
       </form>
     </div>

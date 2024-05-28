@@ -13,6 +13,7 @@ const props: UploadProps = {
   },
 };
 export function RegisterProductsComponent() {
+  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any>([]);
   const [data, setData] = useState<any>({
     name: "",
@@ -33,10 +34,11 @@ export function RegisterProductsComponent() {
 
   async function registerProduct(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setLoading(true);
     try {
       //esperar firebase com a url da imagem
 
-      await api.post("/products/create", {
+      await api.post("/products/register", {
         name: data.name,
         description: data.description,
         price: parseFloat(data.price.replace(",", ".")) * 100,
@@ -46,6 +48,15 @@ export function RegisterProductsComponent() {
       });
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
+      setData({
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        imageUrl: "",
+      });
     }
   }
 
@@ -102,13 +113,20 @@ export function RegisterProductsComponent() {
           </Upload>
         </div>
         <div className="flex justify-end items-end w-full pt-10">
-          <button
-            type="submit"
-            className="bg-[#E72F2B] text-white font-bold py-2 px-4 rounded
+          <Button
+            disabled={
+              data.name === "" ||
+              data.description === "" ||
+              data.price === "" ||
+              data.category === ""
+            }
+            htmlType="submit"
+            loading={loading}
+            className="bg-[#E72F2B] text-white font-bold h-10 py-2 px-4 rounded
             hover:bg-[#E72F2B]/70 transition-all duration-500 w-1/6 "
           >
             Cadastrar
-          </button>
+          </Button>
         </div>
       </form>
     </div>
