@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  .red-button .ant-picker-suffix button {
+    background-color: red;
+    border-color: red;
+    color: white;
+  }
+}
 /* Estilos para a barra de rolagem */
 ::-webkit-scrollbar {
   width: 9px; /* Largura da barra de rolagem */
