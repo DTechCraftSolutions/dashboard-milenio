@@ -1,8 +1,9 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Space, Table, Tag } from "antd";
 import type { TableProps } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { api } from "@/axios/config";
 
 interface DataType {
   key: string;
@@ -29,41 +30,22 @@ const columns: TableProps<DataType>["columns"] = [
     key: "productName",
   },
 ];
-
-const data: DataType[] = [
-  {
-    key: "1",
-    name: "P",
-    quantity: 5,
-    productName: "Camisa",
-  },
-  {
-    key: "2",
-    name: "M",
-    quantity: 10,
-    productName: "Camisa",
-  },
-  {
-    key: "3",
-    name: "G",
-    quantity: 3,
-    productName: "Camisa",
-  },
-  {
-    key: "4",
-    name: "Branca",
-    quantity: 5,
-    productName: "Caneca",
-  },
-  {
-    key: "5",
-    name: "azul",
-    quantity: 10,
-    productName: "Caneca",
-  },
-];
-
 export function VariantTableComponent() {
+  const [data, setData] = useState<DataType[]>([]);
+  async function getAllVariants() {
+    try {
+      const response = await api.get("/variants/list");
+      console.log("response:", response.data);
+      setData(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    getAllVariants();
+  }, []);
+
   return (
     <Table className="border rounded-md" columns={columns} dataSource={data} />
   );
