@@ -1,12 +1,62 @@
+"use client";
+import { api } from "@/axios/config";
 import { Input, Select } from "antd";
+import { FormEvent, useEffect, useState } from "react";
 
 export function RegisterVariantsComponent() {
+  const [products, setProducts] = useState<any>([]);
+  const [data, setData] = useState<any>({
+    name: "",
+    amount: "",
+    productId: "",
+  });
+  async function getAllProducts() {
+    try {
+      const response = await api.get("/products/list");
+      console.log("response:", response.data);
+      setProducts(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function createVariants(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    try {
+      await api.post("/variants/register", {
+        name: data.name,
+        amount: parseInt(data.amount),
+        productId: data.productId,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    getAllProducts();
+  }, []);
   return (
     <div className="flex flex-col w-full">
-      <form className="border w-11/12 flex flex-col gap-10 p-5 h-full rounded-lg">
+      <form
+        onSubmit={(e) => createVariants(e)}
+        className="border w-11/12 flex flex-col gap-10 p-5 h-full rounded-lg"
+      >
         <div className="flex gap-5">
-          <Input className="p-2" placeholder="Nome" type="text" />
-          <Input className="p-2 " placeholder="Quantidade" type="text" />
+          <Input
+            className="p-2"
+            value={data.name}
+            onChange={(e) => setData({ ...data, name: e.target.value })}
+            placeholder="Nome"
+            type="text"
+          />
+          <Input
+            className="p-2"
+            value={data.amount}
+            onChange={(e) => setData({ ...data, amount: e.target.value })}
+            placeholder="Quantidade"
+            type="text"
+          />
         </div>
 
         <div className="flex gap-5">
@@ -14,6 +64,11 @@ export function RegisterVariantsComponent() {
             size="large"
             className="w-full"
             placeholder="Selecione o Produto"
+            onChange={(value) => setData({ ...data, productId: value })}
+            options={products.map((item: any) => ({
+              label: item.name,
+              value: item.id,
+            }))}
           />
         </div>
 

@@ -39,7 +39,7 @@ export function RegisterProductsComponent() {
       await api.post("/products/create", {
         name: data.name,
         description: data.description,
-        price: data.price,
+        price: parseFloat(data.price.replace(",", ".")) * 100,
         categoryId: data.category,
         valuePromotionInPercent: null,
         imageUrl: "https://via.placeholder.com/150",

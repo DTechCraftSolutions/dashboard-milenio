@@ -78,7 +78,10 @@ export function RegisterCategoryComponent() {
           Lista de categorias cadastradas
         </h1>
         <div>
-          <ListCategoryComponent data={categories} />
+          <ListCategoryComponent
+            data={categories}
+            getAllCategories={getAllCategories}
+          />
         </div>
       </div>
     </div>

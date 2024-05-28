@@ -10,9 +10,13 @@ interface DataType {
 }
 interface DataCategoryProps {
   data: string[];
+  getAllCategories: () => void;
 }
 
-export function ListCategoryComponent({ data }: DataCategoryProps) {
+export function ListCategoryComponent({
+  data,
+  getAllCategories,
+}: DataCategoryProps) {
   const [dataCustom, setDataCustom] = useState<
     { key: string; category: string }[]
   >([]);
@@ -55,7 +59,7 @@ export function ListCategoryComponent({ data }: DataCategoryProps) {
     } catch (error) {
       console.error(error);
     } finally {
-      window.location.reload();
+      getAllCategories();
     }
   }
 
@@ -67,7 +71,7 @@ export function ListCategoryComponent({ data }: DataCategoryProps) {
     } catch (error) {
       console.error(error);
     } finally {
-      window.location.reload();
+      getAllCategories();
     }
   }
 
