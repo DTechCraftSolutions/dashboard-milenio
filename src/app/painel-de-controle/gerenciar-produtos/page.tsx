@@ -40,7 +40,11 @@ export default function Produtos() {
         />
       </div>
       <div className="pt-10">
-        <TableProductsComponent products={products} filter={filteredProducts} />
+        <TableProductsComponent
+          products={products}
+          filter={filteredProducts}
+          getAllProducts={getAllProducts}
+        />
       </div>
     </div>
   );

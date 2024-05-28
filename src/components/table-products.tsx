@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Space, Table, Tag, Button, Input } from "antd";
+import { Modal, Space, Table, Tag, Button, Input, Select } from "antd";
 import type { TableProps } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { api } from "@/axios/config";
@@ -15,15 +15,24 @@ interface DataType {
 interface TableProductsProps {
   products: any;
   filter: any;
+  getAllProducts: () => void;
 }
 export function TableProductsComponent({
   products,
   filter,
+  getAllProducts,
 }: TableProductsProps) {
   const [productCustom, setProductCustom] = useState<any>([]);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
   const [selectedId, setSelectedId] = useState<any>(null);
+  const [categories, setCategories] = useState<any>([]);
+  const [dataUpdate, setDataUpdate] = useState<any>({
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+  });
 
   const showModalDelete = (id: string) => {
     setSelectedId(id);
@@ -59,21 +68,41 @@ export function TableProductsComponent({
     } catch (error) {
       console.error(error);
     } finally {
-      window.location.reload();
+      getAllProducts();
     }
   }
 
   async function updateProduct(id: string) {
     try {
-      // Atualizar produto aqui
-      // Você precisará adicionar a lógica para obter os novos dados do produto
-      await api.put(`/products/update/${id}`, {
-        // Dados do produto atualizados
-      });
+      let updatedData = {};
+
+      if (dataUpdate.name) {
+        updatedData = { ...updatedData, name: dataUpdate.name };
+      }
+      if (dataUpdate.description) {
+        updatedData = { ...updatedData, description: dataUpdate.description };
+      }
+      if (dataUpdate.price) {
+        updatedData = {
+          ...updatedData,
+          price: parseFloat(dataUpdate.price.replace(",", ".")) * 100,
+        };
+      }
+      if (dataUpdate.category) {
+        updatedData = { ...updatedData, categoryId: dataUpdate.category };
+      }
+
+      await api.put(`/products/update/${id}`, updatedData);
     } catch (error) {
       console.error(error);
     } finally {
-      window.location.reload();
+      setDataUpdate({
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+      });
+      getAllProducts();
     }
   }
 
@@ -123,6 +152,18 @@ export function TableProductsComponent({
       console.error(error);
     }
   }
+  async function getAllCategories() {
+    try {
+      const response = await api.get("/categories/list");
+      setCategories(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    getAllCategories();
+  }, []);
 
   useEffect(() => {
     const productsCustom = products
@@ -154,10 +195,51 @@ export function TableProductsComponent({
         onCancel={handleCancelEdit}
         cancelButtonProps={{ className: "bg-red-500 text-white" }}
       >
+        <h1 className="py-3">preencha os campos:</h1>
         <div className="flex flex-col gap-2">
-          <Input className="p-2 w-1/2" placeholder="Nome" type="text" />
-          <Input className="p-2 w-1/2" placeholder="Descrição" type="text" />
-          <Input className="p-2 w-1/2" placeholder="Preço" type="text" />
+          <div className="flex gap-2">
+            <Input
+              className=" w-1/2"
+              value={dataUpdate.name}
+              onChange={(e) =>
+                setDataUpdate({ ...dataUpdate, name: e.target.value })
+              }
+              placeholder="Nome"
+              type="text"
+            />
+            <Input
+              className="w-1/2"
+              value={dataUpdate.description}
+              onChange={(e) =>
+                setDataUpdate({ ...dataUpdate, description: e.target.value })
+              }
+              placeholder="Descrição"
+              type="text"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <Input
+              className=" w-1/2"
+              value={dataUpdate.price}
+              onChange={(e) =>
+                setDataUpdate({ ...dataUpdate, price: e.target.value })
+              }
+              placeholder="Preço"
+              type="text"
+            />
+            <Select
+              className="w-1/2"
+              placeholder="Selecione uma categoria"
+              onChange={(value) =>
+                setDataUpdate({ ...dataUpdate, category: value })
+              }
+              options={categories.map((item: any) => ({
+                value: item.id,
+                label: item.name,
+              }))}
+            />
+          </div>
         </div>
       </Modal>
       <Modal
