@@ -11,6 +11,7 @@ import { ItensComponet } from "./itens-side-bar";
 import { useRouter } from "next/navigation";
 const { Header, Sider, Content } = Layout;
 import Image from "next/image";
+import { apiNext } from "@/axios/config";
 type MenuItem = Required<MenuProps>["items"][number];
 function getItem(
   label: React.ReactNode,
@@ -36,8 +37,14 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
 
   const router = useRouter();
 
-  function handleLogout() {
-    router.push("/login");
+  async function handleLogout() {
+    try {
+      await apiNext.post("/auth/sign-out");
+    } catch (error) {
+      console.error(error);
+    } finally {
+      router.push("/login");
+    }
   }
 
   const content = (
