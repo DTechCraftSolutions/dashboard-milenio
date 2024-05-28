@@ -8,7 +8,9 @@ export default function CriarPromocoes() {
       </h1>
 
       <div className="pt-10">
-        <h1 className="pb-5">selecione o produto para adicionar promocão:</h1>
+        <h1 className="pb-5 font-semibold">
+          selecione o produto para adicionar promocão:
+        </h1>
         <PromotionProductsComponent />
       </div>
     </div>
