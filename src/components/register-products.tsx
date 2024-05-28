@@ -25,7 +25,7 @@ export function RegisterProductsComponent() {
   async function getAllCategories() {
     try {
       const response = await api.get("/categories/list");
-      setData(response.data);
+      setCategories(response.data);
     } catch (error) {
       console.error(error);
     }
