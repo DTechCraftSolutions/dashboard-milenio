@@ -2,6 +2,7 @@
 import { api } from "@/axios/config";
 import { Button, Input, Select } from "antd";
 import { FormEvent, useEffect, useState } from "react";
+import { toast, Toaster } from "sonner";
 
 export function RegisterVariantsComponent() {
   const [loading, setLoading] = useState(false);
@@ -29,8 +30,11 @@ export function RegisterVariantsComponent() {
         amount: parseInt(data.amount),
         productId: data.productId,
       });
+
+      toast.success("Variante criado com sucesso! 🎉");
     } catch (error) {
       console.error(error);
+      toast.error("Erro ao criar o variante 😥");
     } finally {
       setData({
         name: "",
@@ -46,6 +50,7 @@ export function RegisterVariantsComponent() {
   }, []);
   return (
     <div className="flex flex-col w-full">
+      <Toaster position="bottom-right" richColors />
       <form
         onSubmit={(e) => createVariants(e)}
         className="border w-11/12 flex flex-col gap-10 p-5 h-full rounded-lg"

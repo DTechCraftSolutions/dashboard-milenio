@@ -3,6 +3,7 @@ import { Button, Input, Space } from "antd";
 import { ListCategoryComponent } from "./list-category";
 import { FormEvent, useEffect, useState } from "react";
 import { api } from "@/axios/config";
+import { toast, Toaster } from "sonner";
 
 export function RegisterCategoryComponent() {
   const [categories, setCategories] = useState<any>([]);
@@ -27,8 +28,11 @@ export function RegisterCategoryComponent() {
       await api.post("/categories/register", {
         name: data.name,
       });
+
+      toast.success("Categoria criada com sucesso! 🎉");
     } catch (error) {
       console.error(error);
+      toast.error("Erro ao criar categoria 😥");
     } finally {
       setLoading(false);
       getAllCategories();
@@ -47,6 +51,7 @@ export function RegisterCategoryComponent() {
     rounded-xl shadow-lg p-5 border border-zinc-200
     border-opacity-60"
     >
+      <Toaster position="bottom-right" richColors />
       <h1 className="text-xl font-semibold">Cadastre uma categoria</h1>
 
       <form

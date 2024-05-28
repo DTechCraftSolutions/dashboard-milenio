@@ -4,6 +4,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { FormEvent, useEffect, useState } from "react";
 import { api } from "@/axios/config";
+import { toast, Toaster } from "sonner";
 
 const props: UploadProps = {
   onChange({ file, fileList }) {
@@ -46,8 +47,10 @@ export function RegisterProductsComponent() {
         valuePromotionInPercent: null,
         imageUrl: "https://via.placeholder.com/150",
       });
+      toast.success("Produto criado com sucesso! 🎉");
     } catch (error) {
       console.error(error);
+      toast.error("Erro ao criar o produto 😥");
     } finally {
       setLoading(false);
       setData({
@@ -65,6 +68,7 @@ export function RegisterProductsComponent() {
   }, []);
   return (
     <div className="flex flex-col w-full">
+      <Toaster position="bottom-right" richColors />
       <form
         onSubmit={(e) => registerProduct(e)}
         className="border w-11/12 flex flex-col gap-10 p-5 h-full rounded-lg"

@@ -22,7 +22,7 @@ export function LoginComponent() {
     e.preventDefault();
     setLoading(true);
     try {
-      //firebase pega o retoro da promise
+      //firebase retoro da promise {userId}
 
       await apiNext.post("/auth/sign-in", {
         userId: "fakerUserId",
@@ -30,6 +30,7 @@ export function LoginComponent() {
       toast.success("Login efetuado com sucesso! 🎉");
     } catch (error) {
       console.error(error);
+      toast.error("Erro ao efetuar o login 😥");
     } finally {
       setLoading(false);
       setData({
