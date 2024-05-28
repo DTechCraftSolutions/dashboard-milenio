@@ -32,11 +32,31 @@ const columns: TableProps<DataType>["columns"] = [
 ];
 export function VariantTableComponent() {
   const [data, setData] = useState<DataType[]>([]);
+
+  async function getProductById(id: string) {
+    try {
+      const response = await api.post(`/products/getById/${id}`);
+      return response.data.name;
+    } catch (error) {
+      console.error(error);
+    }
+  }
   async function getAllVariants() {
     try {
       const response = await api.get("/variants/list");
-      console.log("response:", response.data);
-      setData(response.data);
+      const dataCustom = [];
+
+      for (let item of response.data) {
+        const productName = await getProductById(item.productId);
+        dataCustom.push({
+          key: item.id,
+          name: item.name,
+          quantity: item.amount,
+          productName: productName,
+        });
+      }
+
+      setData(dataCustom);
     } catch (error) {
       console.error(error);
     }
