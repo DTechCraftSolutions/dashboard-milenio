@@ -20,6 +20,13 @@ export function ProductWithPromotionComponent() {
   const [products, setProducts] = useState<any>([]);
   const [customProducts, setCustomProducts] = useState<any>([]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
 
   async function getCategoryById(id: string) {
     try {
@@ -136,7 +143,19 @@ export function ProductWithPromotionComponent() {
       <Table
         className="border rounded-md"
         columns={columns}
-        dataSource={customProducts}
+        dataSource={customProducts.slice(
+          (currentPage - 1) * pageSize,
+          currentPage * pageSize
+        )}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: customProducts.length,
+          locale: { items_per_page: "/ página" },
+          style: { marginRight: "9rem" },
+        }}
+        onChange={handleTableChange}
+        scroll={{ y: 280 }}
       />
 
       <Modal

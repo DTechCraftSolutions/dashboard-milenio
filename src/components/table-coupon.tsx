@@ -30,6 +30,13 @@ export function TableCouponComponent() {
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
   const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
   const [selectedId, setSelectedId] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
 
   const showModalDelete = (id: string) => {
     setSelectedId(id);
@@ -172,7 +179,18 @@ export function TableCouponComponent() {
       <Table
         className="border rounded-md"
         columns={columns}
-        dataSource={couponsCustom}
+        dataSource={couponsCustom.slice(
+          (currentPage - 1) * pageSize,
+          currentPage * pageSize
+        )}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: couponsCustom.length,
+          locale: { items_per_page: "/ página" },
+          style: { marginRight: "9rem" },
+        }}
+        onChange={handleTableChange}
       />
       <Modal
         title={`Editar Produto`}

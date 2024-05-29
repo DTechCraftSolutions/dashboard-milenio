@@ -33,6 +33,8 @@ export function TableProductsComponent({
     price: "",
     category: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   const showModalDelete = (id: string) => {
     setSelectedId(id);
@@ -161,6 +163,11 @@ export function TableProductsComponent({
     }
   }
 
+  async function handleTableChange(pagination: any, filters: any, sorter: any) {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  }
+
   useEffect(() => {
     getAllCategories();
   }, []);
@@ -184,7 +191,18 @@ export function TableProductsComponent({
       <Table
         className="border rounded-md"
         columns={columns}
-        dataSource={productCustom}
+        dataSource={productCustom.slice(
+          (currentPage - 1) * pageSize,
+          currentPage * pageSize
+        )}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: productCustom.length,
+          locale: { items_per_page: "/ página" },
+          style: { marginRight: "9rem" },
+        }}
+        onChange={handleTableChange}
       />
       <Modal
         title={`Editar Produto`}
@@ -231,6 +249,9 @@ export function TableProductsComponent({
             <Select
               className="w-1/2"
               placeholder="Selecione uma categoria"
+              defaultValue={
+                dataUpdate.category === "" ? undefined : dataUpdate.category
+              }
               onChange={(value) =>
                 setDataUpdate({ ...dataUpdate, category: value })
               }

@@ -77,6 +77,7 @@ export function RegisterVariantsComponent() {
             size="large"
             className="w-full"
             placeholder="Selecione o Produto"
+            value={data.productId === "" ? undefined : data.productId}
             onChange={(value) => setData({ ...data, productId: value })}
             options={products.map((item: any) => ({
               label: item.name,

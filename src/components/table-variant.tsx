@@ -32,6 +32,13 @@ const columns: TableProps<DataType>["columns"] = [
 ];
 export function VariantTableComponent() {
   const [data, setData] = useState<DataType[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  const handleTableChange = (pagination: any) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
 
   async function getProductById(id: string) {
     try {
@@ -67,6 +74,21 @@ export function VariantTableComponent() {
   }, []);
 
   return (
-    <Table className="border rounded-md" columns={columns} dataSource={data} />
+    <Table
+      className="border rounded-md"
+      columns={columns}
+      dataSource={data.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+      )}
+      pagination={{
+        current: currentPage,
+        pageSize: pageSize,
+        total: data.length,
+        locale: { items_per_page: "/ página" },
+        style: { marginRight: "9rem" },
+      }}
+      onChange={handleTableChange}
+    />
   );
 }

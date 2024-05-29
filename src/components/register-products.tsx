@@ -101,7 +101,8 @@ export function RegisterProductsComponent() {
           <Select
             size="large"
             className="w-full"
-            placeholder="Selecione a categoria"
+            placeholder={"Selecione a categoria"}
+            defaultValue={data.category === "" ? undefined : data.category}
             onChange={(value) => setData({ ...data, category: value })}
             options={categories.map((category: any) => ({
               value: category.id,
