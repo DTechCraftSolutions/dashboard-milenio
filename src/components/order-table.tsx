@@ -10,7 +10,9 @@ interface DataType {
   orderId: string;
   cartItem: {
     productId: string;
+    variantId: string;
     quantity: number;
+    observation?: string;
   }[];
   send_product: boolean;
   paymentStatus: string;
@@ -39,9 +41,12 @@ export function OrderTableComponent() {
         <ul>
           {cartItem.length > 0 &&
             cartItem?.map((item) => (
-              <li key={item.productId}>
-                {item.productId} - {item.quantity}
-              </li>
+              <Tag color="geekblue" key={item.productId}>
+                <div>Produtos: {item.productId}</div>
+                <div>Quatidade: {item.quantity} </div>
+                <div>Variante: {item.variantId}</div>
+                {item.observation && <div>Observação: {item.observation}</div>}
+              </Tag>
             ))}
         </ul>
       ),
@@ -129,17 +134,27 @@ export function OrderTableComponent() {
       console.error(error);
     }
   }
-
+  async function getVariantById(id: string) {
+    try {
+      const response = await api.get(`/variants/${id}`);
+      return response.data.name;
+    } catch (error) {
+      console.error(error);
+    }
+  }
   async function getCartItemByOrderId(orderId: string) {
     try {
       const response = await api.post(`/cart-items/orderId/${orderId}`);
       const cartItemCustom = [];
 
       for (let item of response.data) {
-        const productName = await getProductById(item.productId);
+        const product = await getProductById(item.productId);
+        const variantName = await getVariantById(item.variantId);
         cartItemCustom.push({
-          productId: productName?.name,
+          productId: product?.name,
           quantity: item.quantity,
+          variantId: variantName,
+          observation: item.observation,
         });
       }
       return cartItemCustom;
