@@ -5,17 +5,14 @@ import type { UploadProps } from "antd";
 import { FormEvent, useEffect, useState } from "react";
 import { api } from "@/axios/config";
 import { toast, Toaster } from "sonner";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "@/firebase";
 
-const props: UploadProps = {
-  onChange({ file, fileList }) {
-    if (file.status !== "uploading") {
-      console.log("file:", file, "fileList:", fileList);
-    }
-  },
-};
+
 export function RegisterProductsComponent() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any>([]);
+  const [image, setImage] = useState<any>(null);
   const [data, setData] = useState<any>({
     name: "",
     description: "",
@@ -32,35 +29,60 @@ export function RegisterProductsComponent() {
       console.error(error);
     }
   }
-
   async function registerProduct(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    try {
-      //esperar firebase com a url da imagem
 
-      await api.post("/products/register", {
-        name: data.name,
-        description: data.description,
-        price: parseFloat(data.price.replace(",", ".")) * 100,
-        categoryId: data.category,
-        valuePromotionInPercent: null,
-        imageUrl: "https://via.placeholder.com/150",
-      });
-      toast.success("Produto criado com sucesso! 🎉");
-    } catch (error) {
-      console.error(error);
-      toast.error("Erro ao criar o produto 😥");
-    } finally {
+    if (!image) {
+      toast.error("Selecione uma imagem");
       setLoading(false);
-      setData({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-        imageUrl: "",
-      });
+      return;
     }
+
+    const storageRef = ref(storage, `images/${image.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, image);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      (error) => {
+        console.log(error);
+        toast.error("Erro ao fazer upload da imagem 😥");
+        setLoading(false);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+          console.log({ downloadURL });
+          try {
+            await api.post("/products/register", {
+              name: data.name,
+              description: data.description,
+              price: parseFloat(data.price.replace(",", ".")) * 100,
+              categoryId: data.category,
+              valuePromotionInPercent: null,
+              imageUrl: downloadURL,
+            });
+            toast.success("Produto criado com sucesso! 🎉");
+          } catch (error) {
+            console.error(error);
+            toast.error("Erro ao criar o produto 😥");
+          } finally {
+            setLoading(false);
+            setData({
+              name: "",
+              description: "",
+              price: "",
+              category: "",
+              imageUrl: "",
+            });
+            setImage(null);
+          }
+        });
+      }
+    );
   }
 
   useEffect(() => {
@@ -113,7 +135,12 @@ export function RegisterProductsComponent() {
 
         <div className="flex flex-col gap-2 border p-5 rounded-md bg-zinc-100">
           <label> Adicione uma imagem: </label>
-          <Upload {...props}>
+          <Upload
+            beforeUpload={(file) => {
+              setImage(file);
+              return false;
+            }}
+          >
             <Button icon={<UploadOutlined />}>Upload</Button>
           </Upload>
         </div>
