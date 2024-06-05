@@ -11,7 +11,7 @@ import { ItensComponet } from "./itens-side-bar";
 import { useRouter } from "next/navigation";
 const { Header, Sider, Content } = Layout;
 import Image from "next/image";
-import { apiNext } from "@/axios/config";
+import Cookies from "js-cookie";
 type MenuItem = Required<MenuProps>["items"][number];
 function getItem(
   label: React.ReactNode,
@@ -39,14 +39,14 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
 
   async function handleLogout() {
     try {
-      await apiNext.post("/auth/sign-out");
+      Cookies.remove("userId");
     } catch (error) {
       console.error(error);
     } finally {
       router.push("/login");
     }
   }
-
+  
   const content = (
     <div className="flex flex-col justify-center items-center">
       <a

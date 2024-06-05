@@ -6,9 +6,10 @@ import {
   EyeTwoTone,
   MailOutlined,
 } from "@ant-design/icons";
-import { apiNext } from "@/axios/config";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from "sonner";
+import Cookies from "js-cookie";
+import { Login } from "@/firebase/functions";
 
 export function LoginComponent() {
   const [loading, setLoading] = useState(false);
@@ -16,18 +17,25 @@ export function LoginComponent() {
     email: "",
     password: "",
   });
-
   const router = useRouter();
   async function handleLogin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     try {
-      //firebase retoro da promise {userId}
-
-      await apiNext.post("/auth/sign-in", {
-        userId: "fakerUserId",
-      });
-      toast.success("Login efetuado com sucesso! 🎉");
+      const response = await Login({
+        email: data.email,
+        password: data.password,
+      })
+      console.log(response)
+   
+      if (response.success) {
+        Cookies.set("userId", "fakerUserId");
+        console.log(response.user);
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
+        return
+      }
     } catch (error) {
       console.error(error);
       toast.error("Erro ao efetuar o login 😥");
@@ -37,9 +45,6 @@ export function LoginComponent() {
         email: "",
         password: "",
       });
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
     }
   }
 
