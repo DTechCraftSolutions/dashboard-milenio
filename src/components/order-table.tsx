@@ -93,6 +93,7 @@ export function OrderTableComponent() {
       title: "Valor Total",
       dataIndex: "totalAmount",
       key: "totalAmount",
+      render: (_, { totalAmount }) => <div>R$ {String(totalAmount.toFixed(2).replace(".", ","))}</div>,
     },
     {
       title: "Endereço do Cliente",
@@ -161,7 +162,7 @@ export function OrderTableComponent() {
           send_product: order.send_product,
           paymentStatus: order.paymentStatus,
           shippingCost: order.shippingCost,
-          totalAmount: order.totalAmount,
+          totalAmount: order.totalAmount / 100,
           user_address: order.user_adress,
           client: order.user_name,
           user_email: order.user_email,
