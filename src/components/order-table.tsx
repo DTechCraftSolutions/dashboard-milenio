@@ -4,6 +4,7 @@ import { Modal, Select, Table, Tag } from "antd";
 import type { TableProps } from "antd";
 import { api } from "@/axios/config";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 interface DataType {
   key: string;
@@ -24,6 +25,7 @@ interface DataType {
   client: string;
   user_email: string;
   user_telephone: string;
+  created_at: string;
 }
 
 export function OrderTableComponent() {
@@ -52,8 +54,13 @@ export function OrderTableComponent() {
     }
   }, [orders]);
 
-
   const columns: TableProps<DataType>["columns"] = useMemo(() => [
+    {
+      title: "Data de Criação",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (_, { created_at }) => <div>{format(new Date(created_at), "dd/MM/yyyy")}</div>,
+    },
     {
       title: "Informação do Carrinho",
       dataIndex: "cartItem",
@@ -113,15 +120,23 @@ export function OrderTableComponent() {
       render: (_, order) => (
         <div>
           <button className="cursor-pointer" onClick={() => updateOrderStatus(order.orderId)}>
-            <Tag color={order.send_product ? "green" : "orange"}>
-              {order.send_product ? "Enviado" : "Pendente"}
-            </Tag>
+            {order.paymentStatus === "approved" && (
+              <Tag color={order.send_product ? "green" : "orange"}>
+                {order.send_product ? "Enviado" : "Pendente"}
+              </Tag>
+            )}
           </button>
+          {order.send_product === false && order.paymentStatus !== "cancelado" && (
+            <div onClick={() => setOrderToCancel(order)} className="cursor-pointer bg-red-500 rounded mt-2 text-white px-2">
+              <p>
+                Cancelar
+              </p>
+            </div>
+          )}
           {
-            order.send_product === false ? <button onClick={() => {
-              setIsDeleting(true)
-              setOrderToCancel(order)
-            }} className="cursor-pointer bg-red-500 rounded mt-2 text-white px-2">Cancelar</button> : null
+            order.paymentStatus === "cancelado" && (
+              <p className="text-red-500">Cancelado</p>
+            )
           }
         </div>
       ),
@@ -151,17 +166,24 @@ export function OrderTableComponent() {
           client: order.user_name,
           user_email: order.user_email,
           user_telephone: order.user_telephone,
+          created_at: order.createdAt,
         };
       }));
+
       const filteredOrders = ordersData.filter((order) => {
-        if (filter === "all") return order;
-        if (filter === "pendente") return order.send_product === false;
-        if (filter === "enviado") return order.send_product === true;
-        if(filter === "cancelado") return order.paymentStatus === "cancelado";
-        if(filter === "aprovado") return order.paymentStatus === "approved";
-        return order;
-      })
-      setOrders(filteredOrders);
+        if (filter === "all") return true;
+        if (filter === "pendente") return !order.send_product && order.paymentStatus === "approved";
+        if (filter === "enviado") return order.send_product;
+        if (filter === "cancelado") return order.paymentStatus === "cancelado";
+        if (filter === "aprovado") return order.paymentStatus === "approved";
+        return false;
+      });
+
+      const sortedOrders = filteredOrders.sort((a, b) => {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
+      setOrders(sortedOrders);
     } catch (error) {
       console.error(error);
     } finally {
@@ -187,23 +209,22 @@ export function OrderTableComponent() {
     }
   };
 
-
   const cancelOrder = async (orderId: string) => {
     try {
-      orderToCancel?.cartItem.map(async (item) => {
-        console.log({item})
-        const itemToEditInStock = item.variantId;
-        const quantity = item.quantity;
-        
-        await api.put(`/variants/update/${itemToEditInStock}`, {
-          amount: item.prevStock + quantity,
-        })
-      })
-      await api.put(`/orders/update/${orderId}`, {
-        paymentStatus: "cancelado",
-      });
-
-      getAllOrders();
+      if (orderToCancel) {
+        for (const item of orderToCancel.cartItem) {
+          const itemToEditInStock = item.variantId;
+          const quantity = item.quantity;
+          await api.put(`/variants/update/${itemToEditInStock}`, {
+            amount: item.prevStock + quantity,
+          });
+        }
+        await api.put(`/orders/update/${orderId}`, {
+          paymentStatus: "cancelado",
+        });
+        getAllOrders();
+        toast.success("Pedido cancelado com sucesso! 🎉");
+      }
     } catch (error) {
       console.error(error);
       toast.error("Não foi possível cancelar o pedido 😥");
@@ -222,7 +243,7 @@ export function OrderTableComponent() {
           variantId: variant.id,
           observation: item.observation,
           prevStock: variant.amount,
-          variantName: variant.name
+          variantName: variant.name,
         };
       }));
       return cartItems;
@@ -237,11 +258,18 @@ export function OrderTableComponent() {
 
   return (
     <>
-      <Select value={filter} onChange={(value) => setFilter(value)} placeholder="Filtrar por status" defaultActiveFirstOption className="w-48 mb-2">
+      <Select
+        value={filter}
+        onChange={(value) => setFilter(value)}
+        placeholder="Filtrar por status"
+        defaultActiveFirstOption
+        className="w-48 mb-2"
+      >
         <Select.Option value="all">Todos</Select.Option>
-        <Select.Option value="pendente">Aprovados</Select.Option>
+        <Select.Option value="pendente">Pendentes</Select.Option>
         <Select.Option value="enviado">Enviados</Select.Option>
         <Select.Option value="cancelado">Cancelados</Select.Option>
+        <Select.Option value="aprovado">Aprovados</Select.Option>
       </Select>
       <Table
         loading={loading}
@@ -252,17 +280,18 @@ export function OrderTableComponent() {
           current: currentPage,
           pageSize: pageSize,
           total: orders.length,
-          locale: { items_per_page: "/ página" },
+          locale: { items_per_page: "/ página" },
           style: { marginRight: "9rem" },
         }}
         onChange={handleTableChange}
       />
-      <Modal visible={isDeleting}
+      <Modal
+        visible={isDeleting}
         onClose={() => setIsDeleting(false)}
         onCancel={() => setIsDeleting(false)}
         onOk={() => {
-          cancelOrder(String(orderToCancel?.orderId))
-          setIsDeleting(false)
+          cancelOrder(String(orderToCancel?.orderId));
+          setIsDeleting(false);
         }}
         title="Cancelar pedido"
         okButtonProps={{ className: "bg-blue-500 text-white" }}
@@ -270,8 +299,6 @@ export function OrderTableComponent() {
         cancelButtonProps={{ className: "bg-red-500 text-white" }}
       >
         <h2>Você deseja cancelar esse pedido?</h2>
-        <div className="flex gap-5">
-        </div>
       </Modal>
     </>
   );
