@@ -47,7 +47,7 @@ export function RegisterCategoryComponent() {
   }, []);
   return (
     <div
-      className="bg-white 
+      className="bg-white  h-[60vh] overflow-y-scroll
     rounded-xl shadow-lg p-5 border border-zinc-200
     border-opacity-60"
     >

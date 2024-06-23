@@ -11,7 +11,12 @@ export function RegisterVariantsComponent() {
     name: "",
     amount: "",
     productId: "",
+    length: "",
+    width: "",
+    height: "",
+    weight: "",
   });
+
   async function getAllProducts() {
     try {
       const response = await api.get("/products/list");
@@ -29,6 +34,10 @@ export function RegisterVariantsComponent() {
         name: data.name,
         amount: parseInt(data.amount),
         productId: data.productId,
+        length: parseInt(data.length),
+        width: parseInt(data.width),
+        height: parseInt(data.height),
+        weight: parseInt(data.weight),
       });
 
       toast.success("Variante criado com sucesso! 🎉");
@@ -40,6 +49,10 @@ export function RegisterVariantsComponent() {
         name: "",
         amount: "",
         productId: "",
+        length: "",
+        width: "",
+        height: "",
+        weight: "",
       });
       setLoading(false);
     }
@@ -73,6 +86,37 @@ export function RegisterVariantsComponent() {
         </div>
 
         <div className="flex gap-5">
+          <Input
+            className="p-2"
+            value={data.length}
+            onChange={(e) => setData({ ...data, length: e.target.value })}
+            placeholder="Comprimento (cm)"
+            type="text"
+          />
+          <Input
+            className="p-2"
+            value={data.width}
+            onChange={(e) => setData({ ...data, width: e.target.value })}
+            placeholder="Largura (cm)"
+            type="text"
+          />
+          <Input
+            className="p-2"
+            value={data.height}
+            onChange={(e) => setData({ ...data, height: e.target.value })}
+            placeholder="Altura (cm)"
+            type="text"
+          />
+          <Input
+            className="p-2"
+            value={data.weight}
+            onChange={(e) => setData({ ...data, weight: e.target.value })}
+            placeholder="Peso (g)"
+            type="text"
+          />
+        </div>
+
+        <div className="flex gap-5">
           <Select
             size="large"
             className="w-full"
@@ -88,11 +132,19 @@ export function RegisterVariantsComponent() {
 
         <div className="flex justify-end items-end w-full pt-10">
           <Button
-            disabled={!data.name || !data.amount || !data.productId}
+            disabled={
+              !data.name ||
+              !data.amount ||
+              !data.productId ||
+              !data.length ||
+              !data.width ||
+              !data.height ||
+              !data.weight
+            }
             loading={loading}
             htmlType="submit"
             className="bg-[#E72F2B] text-white font-bold py-2 px-4 rounded
-        hover:bg-[#E72F2B]/70 transition-all duration-500 w-1/6 h-10 "
+          hover:bg-[#E72F2B]/70 transition-all duration-500 w-1/6 h-10 "
           >
             Cadastrar
           </Button>
@@ -100,4 +152,5 @@ export function RegisterVariantsComponent() {
       </form>
     </div>
   );
+
 }

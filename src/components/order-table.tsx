@@ -258,7 +258,7 @@ export function OrderTableComponent() {
   }, [filter]);
 
   return (
-    <>
+    <div className="w-full h-[60vh] overflow-y-scroll">
       <Select
         value={filter}
         onChange={(value) => setFilter(value)}
@@ -301,6 +301,6 @@ export function OrderTableComponent() {
       >
         <h2>Você deseja cancelar esse pedido?</h2>
       </Modal>
-    </>
+    </div>
   );
 }
