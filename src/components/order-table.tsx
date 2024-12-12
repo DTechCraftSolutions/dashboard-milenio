@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { Modal, Select, Table, Tag } from "antd";
-import type { TableProps } from "antd";
+import React, { useEffect, useState, useCallback } from "react";
+import { Table, Select, Tag, Modal, Button } from "antd";
+import type { TablePaginationConfig } from "antd";
 import { api } from "@/axios/config";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -16,6 +16,7 @@ interface DataType {
     observation?: string;
     prevStock: number;
     variantName: string;
+    productName: string;
   }[];
   send_product: boolean;
   paymentStatus: string;
@@ -30,75 +31,86 @@ interface DataType {
 
 export function OrderTableComponent() {
   const [loading, setLoading] = useState(false);
-  const [orders, setOrders] = useState<DataType[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(2);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [filter, setFilter] = useState("all");
-  const [orderToCancel, setOrderToCancel] = useState<DataType>();
+  const [data, setData] = useState<DataType[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [status, setStatus] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<DataType | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const updateOrderStatus = useCallback(async (orderId: string) => {
+  const cancelOrder = async (id: string) => {
     try {
-      const order = orders.find((order) => order.orderId === orderId);
-      if (!order) return;
-
-      const send_product = order.send_product;
-      await api.put(`/orders/update/${orderId}`, {
-        send_product: !send_product,
-      });
-      toast.success(send_product ? "Pedido enviado! 🎉" : "Pedido pendente de envio!");
-      getAllOrders();
+      await api.put(`/orders/cancel/${id}`);
+      toast.success("Pedido cancelado com sucesso!");
+      await fetchOrders();
+      setIsModalVisible(false); // Fecha o modal após cancelar
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao atualizar o status do pedido! 😥");
+      toast.error("Erro ao cancelar pedido!");
     }
-  }, [orders]);
+  };
 
-  const columns: TableProps<DataType>["columns"] = useMemo(() => [
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/orders/getAll`, {
+        params: {
+          page,
+          status,
+        },
+      });
+
+      const { data: orders, meta } = response.data;
+
+      setData(
+        orders.map((order: any) => ({
+          key: order.id,
+          orderId: order.id,
+          cartItem: order.cartItem.map((item: any) => ({
+            ...item,
+            productName: item.product.name,
+            variantName: item.variant.name,
+          })),
+          send_product: order.send_product,
+          paymentStatus: order.paymentStatus,
+          shippingCost: order.shippingCost,
+          totalAmount: order.totalAmount,
+          user_address: order.user_adress,
+          client: order.user_name,
+          user_email: order.user_email,
+          user_telephone: order.user_telephone,
+          created_at: order.createdAt,
+        }))
+      );
+      setTotal(meta.totalCount);
+    } catch (error) {
+      console.error(error);
+      toast.error("Não foi possível buscar os pedidos, tente novamente 😥");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, status]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  const handleTableChange = (pagination: TablePaginationConfig) => {
+    setPage(pagination.current || 1);
+    setPageSize(pagination.pageSize || 10);
+  };
+
+  const handleRowClick = (record: DataType) => {
+    setSelectedOrder(record);
+    setIsModalVisible(true);
+  };
+
+  const columns = [
     {
-      title: "Data de Criação",
-      dataIndex: "created_at",
-      key: "created_at",
-      render: (_, { created_at }) => <div>{format(new Date(created_at), "dd/MM/yyyy")}</div>,
-    },
-    {
-      title: "Informação do Carrinho",
-      dataIndex: "cartItem",
-      key: "cartItem",
-      render: (_, { cartItem }) => (
-        <ul>
-          {cartItem.length > 0 &&
-            cartItem.map((item) => (
-              <Tag color="geekblue" key={item.productId}>
-                <div>Produtos: {item.productId}</div>
-                <div>Quatidade: {item.quantity}</div>
-                <div>Variante: {item.variantName}</div>
-                {item.observation && <div>Observação: {item.observation}</div>}
-              </Tag>
-            ))}
-        </ul>
-      ),
-    },
-    {
-      title: "Status do Pagamento",
-      dataIndex: "paymentStatus",
-      key: "paymentStatus",
-    },
-    {
-      title: "Custo de Envio",
-      dataIndex: "shippingCost",
-      key: "shippingCost",
-    },
-    {
-      title: "Valor Total",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
-      render: (_, { totalAmount }) => <div>R$ {String(totalAmount.toFixed(2).replace(".", ","))}</div>,
-    },
-    {
-      title: "Endereço do Cliente",
-      dataIndex: "user_address",
-      key: "user_address",
+      title: "Pedido ID",
+      dataIndex: "orderId",
+      key: "orderId",
     },
     {
       title: "Cliente",
@@ -106,200 +118,111 @@ export function OrderTableComponent() {
       key: "client",
     },
     {
-      title: "Email do Cliente",
+      title: "E-mail",
       dataIndex: "user_email",
       key: "user_email",
     },
     {
-      title: "Telefone do Cliente",
+      title: "Telefone",
       dataIndex: "user_telephone",
       key: "user_telephone",
     },
     {
-      title: "Envio",
-      key: "actions",
-      render: (_, order) => (
-        <div>
-          <button className="cursor-pointer" onClick={() => updateOrderStatus(order.orderId)}>
-            {order.paymentStatus === "approved" && (
-              <Tag color={order.send_product ? "green" : "orange"}>
-                {order.send_product ? "Enviado" : "Pendente"}
-              </Tag>
-            )}
-          </button>
-          {order.send_product === false && order.paymentStatus !== "cancelado" && (
-            <div onClick={() => setOrderToCancel(order)} className="cursor-pointer bg-red-500 rounded mt-2 text-white px-2">
-              <p>
-                Cancelar
-              </p>
-            </div>
-          )}
-          {
-            order.paymentStatus === "cancelado" && (
-              <p className="text-red-500">Cancelado</p>
-            )
-          }
-        </div>
-      ),
+      title: "Endereço",
+      dataIndex: "user_address",
+      key: "user_address",
     },
-  ], [updateOrderStatus]);
-
-  const handleTableChange = (pagination: any) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
-
-  const getAllOrders = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/orders/getAll");
-      const ordersData = await Promise.all(response.data.map(async (order: any) => {
-        const cartItems = await getCartItemByOrderId(order.id);
-        return {
-          key: order.id,
-          orderId: order.id,
-          cartItem: cartItems,
-          send_product: order.send_product,
-          paymentStatus: order.paymentStatus,
-          shippingCost: order.shippingCost,
-          totalAmount: order.totalAmount / 100,
-          user_address: order.user_adress,
-          client: order.user_name,
-          user_email: order.user_email,
-          user_telephone: order.user_telephone,
-          created_at: order.createdAt,
-        };
-      }));
-
-      const filteredOrders = ordersData.filter((order) => {
-        if (filter === "all") return true;
-        if (filter === "pendente") return !order.send_product && order.paymentStatus === "approved";
-        if (filter === "enviado") return order.send_product;
-        if (filter === "cancelado") return order.paymentStatus === "cancelado";
-        if (filter === "aprovado") return order.paymentStatus === "approved";
-        return false;
-      });
-
-      const sortedOrders = filteredOrders.sort((a, b) => {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-
-      setOrders(sortedOrders);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getProductById = async (id: string) => {
-    try {
-      const response = await api.post(`/products/getById/${id}`);
-      return { name: response.data.name, quantity: response.data.amount };
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getVariantById = async (id: string) => {
-    try {
-      const response = await api.get(`/variants/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const cancelOrder = async (orderId: string) => {
-    try {
-      if (orderToCancel) {
-        for (const item of orderToCancel.cartItem) {
-          const itemToEditInStock = item.variantId;
-          const quantity = item.quantity;
-          await api.put(`/variants/update/${itemToEditInStock}`, {
-            amount: item.prevStock + quantity,
-          });
-        }
-        await api.put(`/orders/update/${orderId}`, {
-          paymentStatus: "cancelado",
-        });
-        getAllOrders();
-        toast.success("Pedido cancelado com sucesso! 🎉");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Não foi possível cancelar o pedido 😥");
-    }
-  };
-
-  const getCartItemByOrderId = async (orderId: string) => {
-    try {
-      const response = await api.post(`/cart-items/orderId/${orderId}`);
-      const cartItems = await Promise.all(response.data.map(async (item: any) => {
-        const product = await getProductById(item.productId);
-        const variant = await getVariantById(item.variantId);
-        return {
-          productId: product?.name,
-          quantity: item.quantity,
-          variantId: variant.id,
-          observation: item.observation,
-          prevStock: variant.amount,
-          variantName: variant.name,
-        };
-      }));
-      return cartItems;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    getAllOrders();
-  }, [filter]);
+    {
+      title: "Status",
+      dataIndex: "paymentStatus",
+      key: "paymentStatus",
+      render: (status: string) => {
+        const color = status === "approved" ? "green" : status === "pendente" ? "orange" : "red";
+        return <Tag color={color}>{status.toUpperCase() === "APPROVED" ? "Aprovado" : status.toUpperCase() === "CANCELED" ? "Cancelado" : status}</Tag>;
+      },
+    },
+    {
+      title: "Total (R$)",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      render: (amount: number) => `R$ ${(amount / 100).toFixed(2)}`, // Considerando que o valor está em centavos
+    },
+    {
+      title: "Data",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (date: string) => format(new Date(date), "dd/MM/yyyy"),
+    },
+  ];
 
   return (
-    <div className="w-full h-[60vh] overflow-y-scroll">
-      <Select
-        value={filter}
-        onChange={(value) => setFilter(value)}
-        placeholder="Filtrar por status"
-        defaultActiveFirstOption
-        className="w-48 mb-2"
-      >
-        <Select.Option value="all">Todos</Select.Option>
-        <Select.Option value="pendente">Pendentes</Select.Option>
-        <Select.Option value="enviado">Enviados</Select.Option>
-        <Select.Option value="cancelado">Cancelados</Select.Option>
-        <Select.Option value="aprovado">Aprovados</Select.Option>
-      </Select>
+    <div className="max-h-[50vh]">
+      <div style={{ marginBottom: 16 }}>
+        <Select
+          placeholder="Filtre pelo status do pedido"
+          onChange={(value) => setStatus(value)}
+          style={{ width: 200 }}
+          allowClear
+          options={[
+            {
+              value: "pendente",
+              label: "Pendente",
+            },
+            {
+              value: "approved",
+              label: "Aprovado",
+            },
+            {
+              value: "canceled",
+              label: "Cancelado",
+            },
+          ]}
+        />
+      </div>
       <Table
-        loading={loading}
-        className="border rounded-md"
         columns={columns}
-        dataSource={orders.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+        dataSource={data}
+        loading={loading}
         pagination={{
-          current: currentPage,
+          current: page,
           pageSize: pageSize,
-          total: orders.length,
-          locale: { items_per_page: "/ página" },
-          style: { marginRight: "9rem" },
+          total: total,
+          showSizeChanger: false,
         }}
         onChange={handleTableChange}
+        onRow={(record) => ({
+          onClick: () => record.paymentStatus !== "canceled" && handleRowClick(record), // Abre o modal ao clicar no pedido
+        })}
+        rowKey="orderId"
       />
       <Modal
-        visible={isDeleting}
-        onClose={() => setIsDeleting(false)}
-        onCancel={() => setIsDeleting(false)}
-        onOk={() => {
-          cancelOrder(String(orderToCancel?.orderId));
-          setIsDeleting(false);
-        }}
-        title="Cancelar pedido"
-        okButtonProps={{ className: "bg-blue-500 text-white" }}
-        okText="Confirmar"
-        cancelButtonProps={{ className: "bg-red-500 text-white" }}
+        title={`Itens do Pedido - ${selectedOrder?.orderId}`}
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsModalVisible(false)}>
+            Fechar
+          </Button>,
+          <Button
+            key="cancelOrder"
+            type="primary"
+            danger
+            onClick={() => selectedOrder && cancelOrder(selectedOrder.orderId)}
+          >
+            Cancelar Pedido
+          </Button>,
+        ]}
       >
-        <h2>Você deseja cancelar esse pedido?</h2>
+        {selectedOrder?.cartItem.map((item, index) => (
+          <div key={index} style={{ marginBottom: 8 }}>
+            <p>
+              <strong>Produto:</strong> {item.productName}
+            </p>
+            <p>
+              <strong>Variante:</strong> {item.variantName} | <strong>Quantidade:</strong> {item.quantity}
+            </p>
+          </div>
+        ))}
       </Modal>
     </div>
   );
