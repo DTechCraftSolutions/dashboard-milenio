@@ -142,6 +142,12 @@ export function OrderTableComponent() {
       },
     },
     {
+      title: "Frete (R$)",
+      dataIndex: "shippingCost",
+      key: "shippingCost",
+      render: (amount: number) => `R$ ${(amount / 100).toFixed(2)}`,
+    },
+    {
       title: "Total (R$)",
       dataIndex: "totalAmount",
       key: "totalAmount",

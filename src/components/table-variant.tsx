@@ -45,6 +45,9 @@ export function VariantTableComponent() {
           <a onClick={() => setEditingItem(record)}>
             <EditOutlined />
           </a>
+          <button>
+            <DeleteOutlined onClick={() => setDeleteItem(record)} />
+          </button>
         </Space>
       ),
     }
@@ -52,14 +55,12 @@ export function VariantTableComponent() {
 
   const deleteVariant = async () => {
     try {
-      console.log({deleteItem});
       await api.delete(`/variants/delete/${deleteItem?.key}`);
       getAllVariants();
     } catch (error) {
       console.error(error);
     }
   };
-  console.log(deleteItem)
   const updateVariant = async () => {
     try {
       await api.put(`/variants/update/${editingItem?.key}`, {
