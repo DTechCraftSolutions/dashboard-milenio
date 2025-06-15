@@ -1,92 +1,127 @@
 "use client";
-import { Button, Input } from "antd";
-import { FormEvent, useState } from "react";
-import {
-  EyeInvisibleOutlined,
-  EyeTwoTone,
-  MailOutlined,
-} from "@ant-design/icons";
+
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast, Toaster } from "sonner";
+import { Button, Input, Form, message } from "antd";
+import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import Cookies from "js-cookie";
+import { theme as customTheme } from "@/styles/theme";
+import { toast, Toaster } from "sonner";
 import { Login } from "@/firebase/functions";
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
 
 export function LoginComponent() {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<any>({
-    email: "",
-    password: "",
-  });
   const router = useRouter();
-  async function handleLogin(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+
+  async function handleLogin(values: LoginFormValues) {
     setLoading(true);
     try {
       const response = await Login({
-        email: data.email,
-        password: data.password,
-      })
-      console.log(response)
-   
+        email: values.email,
+        password: values.password,
+      });
+      
       if (response.success) {
         Cookies.set("userId", "fakerUserId");
-        console.log(response.user);
+        toast.success("Login realizado com sucesso!");
         setTimeout(() => {
           router.push("/");
         }, 1500);
-        return
+        return;
       }
     } catch (error) {
       console.error(error);
       toast.error("Erro ao efetuar o login 😥");
     } finally {
       setLoading(false);
-      setData({
-        email: "",
-        password: "",
-      });
     }
   }
 
   return (
-    <div className="flex flex-col justify-center items-center w-full h-full">
+    <div className="w-full">
       <Toaster position="bottom-right" richColors />
-      <form
-        onSubmit={(e) => handleLogin(e)}
-        className="flex flex-col gap-10 w-full justify-center items-center"
-      >
-        <Input
-          type="text"
-          value={data.email}
-          onChange={(e) => setData({ ...data, email: e.target.value })}
-          className="w-2/3 p-4 text-lg"
-          placeholder="Digite seu email"
-          suffix={<MailOutlined className="text-[18px] text-red-500 " />}
-        />
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-800">Entrar</h2>
+        <p className="text-gray-500 mt-2">
+          Entre com suas credenciais para acessar o dashboard
+        </p>
+      </div>
 
-        <Input.Password
-          value={data.password}
-          onChange={(e) => setData({ ...data, password: e.target.value })}
-          className="w-2/3 p-4 text-lg"
-          placeholder="Digite sua senha"
-          iconRender={(visible) =>
-            visible ? (
-              <EyeTwoTone className="text-[20px] " />
-            ) : (
-              <EyeInvisibleOutlined className="text-[20px] " />
-            )
-          }
-        />
-        <Button
-          htmlType="submit"
-          loading={loading}
-          disabled={!data.email || !data.password}
-          className="w-2/3 bg-[#E72F2B] rounded-md p-5 h-16 text-white hover:bg-[#E72F2B]/70
-          transition-all duration-500"
+      <Form
+        name="login"
+        onFinish={handleLogin}
+        layout="vertical"
+        requiredMark={false}
+        className="space-y-4"
+      >
+        <Form.Item
+          name="email"
+          rules={[
+            { required: true, message: "Por favor, insira seu email" },
+            { type: "email", message: "Email inválido" },
+          ]}
         >
-          Entrar
-        </Button>
-      </form>
+          <Input
+            prefix={<UserOutlined className="text-gray-400" />}
+            placeholder="Email"
+            size="large"
+            className="rounded-lg"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: "Por favor, insira sua senha" }]}
+        >
+          <Input.Password
+            prefix={<LockOutlined className="text-gray-400" />}
+            placeholder="Senha"
+            size="large"
+            className="rounded-lg"
+          />
+        </Form.Item>
+
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="remember"
+              className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <label htmlFor="remember" className="ml-2 text-sm text-gray-600">
+              Lembrar-me
+            </label>
+          </div>
+          <a href="#" className="text-sm text-blue-600 hover:text-blue-800">
+            Esqueceu a senha?
+          </a>
+        </div>
+
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            className="w-full h-11 rounded-lg bg-[#232A60] hover:bg-[#1A1F4A]"
+          >
+            Entrar
+          </Button>
+        </Form.Item>
+      </Form>
+
+      <div className="mt-8 text-center">
+        <p className="text-sm text-gray-600">
+          Não tem uma conta?{" "}
+          <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">
+            Entre em contato
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

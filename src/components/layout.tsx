@@ -137,7 +137,7 @@ export function LayoutComponent({ children }: { children: React.ReactNode }) {
         </Header>
         <Content
           className="overflow-y-scroll  border
-          border-zinc-100 rounded-md shadow-md"
+          border-zinc-100 rounded-md shadow-md max-h-[calc(100vh-120px)]"
           style={{
             margin: "24px 16px",
             padding: 24,

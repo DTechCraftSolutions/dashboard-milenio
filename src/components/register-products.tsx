@@ -7,12 +7,13 @@ import { api } from "@/axios/config";
 import { toast, Toaster } from "sonner";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/firebase";
-
+import { AxiosError } from "axios";
 
 export function RegisterProductsComponent() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any>([]);
   const [image, setImage] = useState<any>(null);
+  const [fileList, setFileList] = useState<any[]>([]);
   const [data, setData] = useState<any>({
     name: "",
     description: "",
@@ -29,6 +30,7 @@ export function RegisterProductsComponent() {
       console.error(error);
     }
   }
+
   async function registerProduct(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
@@ -67,18 +69,19 @@ export function RegisterProductsComponent() {
             });
             toast.success("Produto criado com sucesso! 🎉");
           } catch (error) {
-            console.error(error);
-            toast.error("Erro ao criar o produto 😥");
+            if(error instanceof AxiosError){
+              error.response?.data.message === "Product already exists" ? toast.error("Produto já cadastrado com esse nome, verifique e tente novamente!") : toast.error("Erro ao criar o produto 😥");
+            }
           } finally {
             setLoading(false);
             setData({
               name: "",
               description: "",
               price: "",
-              category: "",
               imageUrl: "",
             });
             setImage(null);
+            setFileList([]);
           }
         });
       }
@@ -88,6 +91,25 @@ export function RegisterProductsComponent() {
   useEffect(() => {
     getAllCategories();
   }, []);
+
+  const uploadProps: UploadProps = {
+    beforeUpload: (file) => {
+      if (fileList.length >= 1) {
+        toast.error("Você só pode fazer upload de uma imagem por vez");
+        return false;
+      }
+      setImage(file);
+      setFileList([file]);
+      return false;
+    },
+    fileList,
+    onRemove: () => {
+      setImage(null);
+      setFileList([]);
+    },
+    maxCount: 1,
+  };
+
   return (
     <div className="flex flex-col w-full">
       <Toaster position="bottom-right" richColors />
@@ -107,7 +129,7 @@ export function RegisterProductsComponent() {
             className="p-2"
             value={data.description}
             onChange={(e) => setData({ ...data, description: e.target.value })}
-            placeholder="Descrição"
+            placeholder="Descrição"
             type="text"
           />
         </div>
@@ -117,7 +139,7 @@ export function RegisterProductsComponent() {
             className="p-2"
             value={data.price}
             onChange={(e) => setData({ ...data, price: e.target.value })}
-            placeholder="Preço"
+            placeholder="Preço"
             type="text"
           />
           <Select
@@ -135,12 +157,7 @@ export function RegisterProductsComponent() {
 
         <div className="flex flex-col gap-2 border p-5 rounded-md bg-zinc-100">
           <label> Adicione uma imagem: </label>
-          <Upload
-            beforeUpload={(file) => {
-              setImage(file);
-              return false;
-            }}
-          >
+          <Upload {...uploadProps}>
             <Button icon={<UploadOutlined />}>Upload</Button>
           </Upload>
         </div>
@@ -150,7 +167,8 @@ export function RegisterProductsComponent() {
               data.name === "" ||
               data.description === "" ||
               data.price === "" ||
-              data.category === ""
+              data.category === "" ||
+              !image
             }
             htmlType="submit"
             loading={loading}
